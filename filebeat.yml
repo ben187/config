@@ -1,0 +1,26 @@
+filebeat.inputs:
+- type: log
+  paths:
+    - /var/lib/docker/containers/*/*.log
+  fields:
+    log_type: docker
+
+output.elasticsearch:
+  hosts: ["http://localhost:9220"]
+  indices:
+    - index: "filebeat-orders-http-%{+yyyy.MM.dd}"
+      when:
+        and:
+          - contains:
+              message: "\\\"channel\\\":\\\"orders_http\\\""
+          - equals:
+              fields.log_type: docker
+
+    - index: "filebeat-orders-%{+yyyy.MM.dd}"
+      when:
+        and:
+          - contains:
+              message: "\\\"channel\\\":\\\"orders\\\""
+          - equals:
+              fields.log_type: docker
+
